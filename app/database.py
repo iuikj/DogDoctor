@@ -10,7 +10,6 @@ load_dotenv()
 # 数据库配置
 SQLALCHEMY_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "sqlite:///./dogdoctor.db"  # 默认使用SQLite数据库
 )
 
 engine = create_engine(
