@@ -98,6 +98,10 @@ cd DogDoctor
 # 使用uv包管理器（推荐）
 pip install uv
 uv sync
+
+# uv管不到的依赖，手动下载
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+uv pip install matplotlib numpy pillow opencv-python albumentations rembg
 ```
 
 3. **配置数据库**
