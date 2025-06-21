@@ -47,7 +47,7 @@ def extract_zip_to_dir(zip_content, target_dir):
 @router.post("/upload/dataset")
 async def upload_dataset(
     labels_file: UploadFile = File(...),
-    train_zip: UploadFile = File(...),
+    train_zip: UploadFile = File(None),
     test_zip: UploadFile = File(None)  # 测试集可选
 ):
     """上传数据集（标签文件和训练/测试图片压缩包）"""

@@ -89,7 +89,7 @@ DogDoctor/
 
 1. **克隆项目**
 ```bash
-git clone <repository-url>
+git clone https://github.com/iuikj/DogDoctor.git
 cd DogDoctor
 ```
 
@@ -98,9 +98,6 @@ cd DogDoctor
 # 使用uv包管理器（推荐）
 pip install uv
 uv sync
-
-# 或使用pip
-pip install -r requirements.txt
 ```
 
 3. **配置数据库**
@@ -108,14 +105,11 @@ pip install -r requirements.txt
 # 创建MySQL数据库
 mysql -u root -p
 CREATE DATABASE dogdoctor;
-
-# 初始化数据库
-python init_db.py
 ```
 
 4. **启动后端服务**
 ```bash
-cd backend/app
+cd app
 python main.py
 ```
 后端服务将在 `http://127.0.0.1:8000` 启动
@@ -130,35 +124,23 @@ cd frontend/dog_front
 2. **安装Node.js依赖**
 ```bash
 npm install
-# 或使用yarn
-yarn install
 ```
 
 3. **启动开发服务器**
 ```bash
 npm run dev
-# 或使用yarn
-yarn dev
 ```
 
-4. **构建生产版本**
-```bash
-npm run build
-# 或使用yarn
-yarn build
-```
 
 ## 使用流程
 
 ### 1. 系统初始化
 ```bash
 # 1. 启动后端服务
-cd backend/app && python main.py
+cd backend/app 
+python main.py
 
-# 2. 初始化品种数据库
-python init_db.py
-
-# 3. 启动前端服务
+# 2. 启动前端服务
 cd frontend/dog_front && npm run dev
 ```
 
@@ -250,25 +232,12 @@ tail -f app.log
 tail -f training.log
 ```
 
-## 贡献指南
-
-欢迎提交Issues和Pull Requests来改进项目：
-
-1. Fork项目到您的GitHub账户
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启Pull Request
-
-## 许可证
-
-本项目采用MIT许可证 - 详见 [LICENSE](LICENSE) 文件
 
 ## 联系方式
 
-- 项目维护者: [Your Name]
-- 邮箱: [your.email@example.com]
-- 项目地址: [项目GitHub链接]
+- 项目维护者: iuikj
+- 邮箱: 2234514566@qq.com
+- 项目地址: https://github.com/iuikj/DogDoctor.git
 
 ## 更新日志
 

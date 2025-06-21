@@ -7,7 +7,7 @@
           <div class="logo-icon">
             <el-icon><IconDog /></el-icon>
           </div>
-          <h1>Dog Breed Recognition</h1>
+          <h1>狗博士</h1>
         </div>
         <el-tabs v-model="activeTab" class="main-tabs">
           <el-tab-pane label="训练模块" name="train">
@@ -57,15 +57,10 @@
                     <div class="upload-text">拖拽标签文件到此处</div>
                     <div class="upload-hint">支持 CSV 格式</div>
                   </el-upload>
-                  <el-button
-                    v-if="uploadFiles.labels"
-                    type="primary"
-                    @click="uploadLabels"
-                    :loading="uploading.labels"
-                    class="action-btn"
-                  >
-                    上传标签文件
-                  </el-button>
+                  <div v-if="uploadFiles.labels" class="file-info">
+                    <el-icon class="success-icon"><IconCheckCircle /></el-icon>
+                    <span class="file-name">{{ uploadFiles.labels.name }}</span>
+                  </div>
                 </div>
 
                 <!-- 图片压缩包上传 -->
@@ -83,15 +78,29 @@
                     <div class="upload-text">拖拽图片压缩包到此处</div>
                     <div class="upload-hint">支持 ZIP、RAR、7Z 格式</div>
                   </el-upload>
+                  <div v-if="uploadFiles.images" class="file-info">
+                    <el-icon class="success-icon"><IconCheckCircle /></el-icon>
+                    <span class="file-name">{{ uploadFiles.images.name }}</span>
+                  </div>
+                </div>
+
+                <!-- 统一上传按钮 -->
+                <div class="upload-actions">
                   <el-button
-                    v-if="uploadFiles.images"
+                    v-if="uploadFiles.labels && uploadFiles.images"
                     type="primary"
-                    @click="uploadImages"
-                    :loading="uploading.images"
-                    class="action-btn"
+                    size="large"
+                    @click="uploadDataset"
+                    :loading="uploading.dataset"
+                    class="primary-btn upload-dataset-btn"
                   >
-                    上传图片压缩包
+                    <el-icon v-if="!uploading.dataset"><IconUpload /></el-icon>
+                    <el-icon v-else><IconSpinner /></el-icon>
+                    {{ uploading.dataset ? '上传中...' : '上传数据集' }}
                   </el-button>
+                  <div v-else class="upload-hint-text">
+                    请先选择标签文件和图片压缩包
+                  </div>
                 </div>
               </div>
             </el-card>
@@ -239,11 +248,11 @@
                       Epoch {{ trainingData.epoch }}/{{ trainingData.total_epochs }}
                     </span>
                     <span class="progress-percent">
-                      {{ Math.round((trainingData.epoch / trainingData.total_epochs) * 100) }}%
+                      {{ formatProgressPercentage(trainingData.epoch, trainingData.total_epochs) }}%
                     </span>
                   </div>
                   <el-progress
-                    :percentage="Math.round((trainingData.epoch / trainingData.total_epochs) * 100)"
+                    :percentage="getProgressPercentage(trainingData.epoch, trainingData.total_epochs)"
                     :stroke-width="10"
                     class="progress-bar"
                     :color="isTraining ? '#409eff' : '#67c23a'"
@@ -257,7 +266,7 @@
                       </div>
                       <div class="metric-content">
                         <div class="metric-label">训练损失</div>
-                        <div class="metric-value">{{ trainingData.train_loss?.toFixed(4) }}</div>
+                        <div class="metric-value">{{ formatMetricValue(trainingData.train_loss, 4) }}</div>
                       </div>
                     </div>
                     <div class="metric-item">
@@ -266,7 +275,7 @@
                       </div>
                       <div class="metric-content">
                         <div class="metric-label">训练准确率</div>
-                        <div class="metric-value">{{ trainingData.train_acc?.toFixed(2) }}%</div>
+                        <div class="metric-value">{{ formatMetricValue(trainingData.train_acc, 2) }}%</div>
                       </div>
                     </div>
                     <div class="metric-item">
@@ -275,7 +284,7 @@
                       </div>
                       <div class="metric-content">
                         <div class="metric-label">验证损失</div>
-                        <div class="metric-value">{{ trainingData.val_loss?.toFixed(4) }}</div>
+                        <div class="metric-value">{{ formatMetricValue(trainingData.val_loss, 4) }}</div>
                       </div>
                     </div>
                     <div class="metric-item">
@@ -284,14 +293,14 @@
                       </div>
                       <div class="metric-content">
                         <div class="metric-label">验证准确率</div>
-                        <div class="metric-value">{{ trainingData.val_acc?.toFixed(2) }}%</div>
+                        <div class="metric-value">{{ formatMetricValue(trainingData.val_acc, 2) }}%</div>
                       </div>
                     </div>
                   </div>
 
                   <div class="learning-rate-info">
                     <el-icon><IconTachometer /></el-icon>
-                    学习率: {{ trainingData.learning_rate }}
+                    学习率: {{ formatMetricValue(trainingData.learning_rate, 6) }}
                   </div>
                 </div>
               </div>
@@ -613,7 +622,8 @@ const uploadFiles = reactive({
 
 const uploading = reactive({
   labels: false,
-  images: false
+  images: false,
+  dataset: false
 })
 
 const loading = reactive({
@@ -649,13 +659,78 @@ const handlePredictImageChange = (file) => {
   predictImageFile.value = file.raw
 }
 
-// 上传标签文件
+// 格式化指标值，处理NaN和undefined
+const formatMetricValue = (value, decimals = 2) => {
+  if (value === null || value === undefined || isNaN(value)) {
+    return '--'
+  }
+  if (typeof value === 'number') {
+    return value.toFixed(decimals)
+  }
+  return '--'
+}
+
+// 格式化进度百分比显示
+const formatProgressPercentage = (current, total) => {
+  if (!current || !total || isNaN(current) || isNaN(total) || total === 0) {
+    return '0'
+  }
+  return Math.round((current / total) * 100).toString()
+}
+
+// 获取进度百分比数值
+const getProgressPercentage = (current, total) => {
+  if (!current || !total || isNaN(current) || isNaN(total) || total === 0) {
+    return 0
+  }
+  return Math.round((current / total) * 100)
+}
+
+// 统一上传数据集（标签文件 + 图片压缩包）
+const uploadDataset = async () => {
+  if (!uploadFiles.labels || !uploadFiles.images) {
+    ElMessage.warning('请选择标签文件和图片压缩包')
+    return
+  }
+
+  uploading.dataset = true
+  const formData = new FormData()
+  formData.append('labels_file', uploadFiles.labels)
+  formData.append('train_zip', uploadFiles.images)
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/upload/dataset', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (response.ok) {
+      ElMessage.success('数据集上传成功')
+      // 清空文件选择
+      labelsUpload.value.clearFiles()
+      imagesUpload.value.clearFiles()
+      uploadFiles.labels = null
+      uploadFiles.images = null
+      // 自动刷新数据集列表
+      await fetchDatasets()
+    } else {
+      const errorData = await response.json()
+      throw new Error(errorData.detail || '上传失败')
+    }
+  } catch (error) {
+    ElMessage.error('数据集上传失败: ' + error.message)
+  } finally {
+    uploading.dataset = false
+  }
+}
+
+// 保留原有函数以备需要（可选）
 const uploadLabels = async () => {
   if (!uploadFiles.labels) return
 
   uploading.labels = true
   const formData = new FormData()
-  formData.append('labels', uploadFiles.labels)
+  formData.append('labels_file', uploadFiles.labels)
 
   try {
     const response = await fetch('http://127.0.0.1:8000/api/upload/dataset', {
@@ -677,13 +752,14 @@ const uploadLabels = async () => {
   }
 }
 
-// 上传图片压缩包
+// 保留原有函数以备需要（可选）
 const uploadImages = async () => {
   if (!uploadFiles.images) return
 
   uploading.images = true
   const formData = new FormData()
-  formData.append('images', uploadFiles.images)
+  formData.append('train_zip', uploadFiles.images)
+  formData.append('labels_file', uploadFiles.labels)
 
   try {
     const response = await fetch('http://127.0.0.1:8000/api/upload/dataset', {
@@ -766,21 +842,32 @@ const startTraining = async () => {
       const chunk = decoder.decode(value)
       const lines = chunk.split('\n').filter(line => line.trim())
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.substring(6))
-            trainingData.value = data
-            // 添加到历史数据中
-            trainingHistory.value.push({
-              ...data,
-              timestamp: Date.now()
-            })
-          } catch (e) {
-            console.error('解析训练数据失败:', e)
+              for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.substring(6))
+              
+              // 处理NaN值，将其替换为0或者上一个有效值
+              const cleanData = {
+                ...data,
+                train_loss: isNaN(data.train_loss) ? 0 : data.train_loss,
+                train_acc: isNaN(data.train_acc) ? 0 : data.train_acc,
+                val_loss: isNaN(data.val_loss) ? 0 : data.val_loss,
+                val_acc: isNaN(data.val_acc) ? 0 : data.val_acc,
+                learning_rate: isNaN(data.learning_rate) ? 0.001 : data.learning_rate
+              }
+              
+              trainingData.value = cleanData
+              // 添加到历史数据中
+              trainingHistory.value.push({
+                ...cleanData,
+                timestamp: Date.now()
+              })
+            } catch (e) {
+              console.error('解析训练数据失败:', e)
+            }
           }
         }
-      }
     }
 
     ElNotification.success({
@@ -945,18 +1032,27 @@ const drawLossChart = () => {
   // 清空画布
   ctx.clearRect(0, 0, width, height)
   
-  // 获取数据
-  const epochs = trainingHistory.value.map(d => d.epoch)
-  const trainLoss = trainingHistory.value.map(d => d.train_loss)
-  const valLoss = trainingHistory.value.map(d => d.val_loss)
+  // 获取有效数据，保持索引对应关系
+  const validData = trainingHistory.value.filter(d => 
+    !isNaN(d.epoch) && d.epoch !== null && d.epoch !== undefined &&
+    !isNaN(d.train_loss) && d.train_loss !== null && d.train_loss !== undefined &&
+    !isNaN(d.val_loss) && d.val_loss !== null && d.val_loss !== undefined
+  )
   
-  if (epochs.length < 2) return
+  if (validData.length < 2) return
   
   // 计算范围
+  const epochs = validData.map(d => d.epoch)
+  const trainLoss = validData.map(d => d.train_loss)
+  const valLoss = validData.map(d => d.val_loss)
+  
   const minEpoch = Math.min(...epochs)
   const maxEpoch = Math.max(...epochs)
   const minLoss = Math.min(...trainLoss, ...valLoss)
   const maxLoss = Math.max(...trainLoss, ...valLoss)
+  
+  // 检查范围是否有效
+  if (isNaN(minLoss) || isNaN(maxLoss) || minLoss === maxLoss) return
   
   const padding = 40
   const chartWidth = width - 2 * padding
@@ -993,9 +1089,9 @@ const drawLossChart = () => {
   ctx.lineWidth = 2
   ctx.beginPath()
   
-  for (let i = 0; i < epochs.length; i++) {
-    const x = padding + (epochs[i] - minEpoch) / (maxEpoch - minEpoch) * chartWidth
-    const y = height - padding - (trainLoss[i] - minLoss) / (maxLoss - minLoss) * chartHeight
+  for (let i = 0; i < validData.length; i++) {
+    const x = padding + (validData[i].epoch - minEpoch) / (maxEpoch - minEpoch) * chartWidth
+    const y = height - padding - (validData[i].train_loss - minLoss) / (maxLoss - minLoss) * chartHeight
     
     if (i === 0) {
       ctx.moveTo(x, y)
@@ -1010,9 +1106,9 @@ const drawLossChart = () => {
   ctx.lineWidth = 2
   ctx.beginPath()
   
-  for (let i = 0; i < epochs.length; i++) {
-    const x = padding + (epochs[i] - minEpoch) / (maxEpoch - minEpoch) * chartWidth
-    const y = height - padding - (valLoss[i] - minLoss) / (maxLoss - minLoss) * chartHeight
+  for (let i = 0; i < validData.length; i++) {
+    const x = padding + (validData[i].epoch - minEpoch) / (maxEpoch - minEpoch) * chartWidth
+    const y = height - padding - (validData[i].val_loss - minLoss) / (maxLoss - minLoss) * chartHeight
     
     if (i === 0) {
       ctx.moveTo(x, y)
@@ -1055,18 +1151,28 @@ const drawAccuracyChart = () => {
   // 清空画布
   ctx.clearRect(0, 0, width, height)
   
-  // 获取数据
-  const epochs = trainingHistory.value.map(d => d.epoch)
-  const trainAcc = trainingHistory.value.map(d => d.train_acc)
-  const valAcc = trainingHistory.value.map(d => d.val_acc)
+  // 获取有效数据，保持索引对应关系
+  const validData = trainingHistory.value.filter(d => 
+    !isNaN(d.epoch) && d.epoch !== null && d.epoch !== undefined &&
+    !isNaN(d.train_acc) && d.train_acc !== null && d.train_acc !== undefined &&
+    !isNaN(d.val_acc) && d.val_acc !== null && d.val_acc !== undefined
+  )
   
-  if (epochs.length < 2) return
+  if (validData.length < 2) return
+  
+  // 获取数据
+  const epochs = validData.map(d => d.epoch)
+  const trainAcc = validData.map(d => d.train_acc)
+  const valAcc = validData.map(d => d.val_acc)
   
   // 计算范围
   const minEpoch = Math.min(...epochs)
   const maxEpoch = Math.max(...epochs)
   const minAcc = Math.min(...trainAcc, ...valAcc) - 5
   const maxAcc = Math.max(...trainAcc, ...valAcc) + 5
+  
+  // 检查范围是否有效
+  if (isNaN(minAcc) || isNaN(maxAcc) || minAcc === maxAcc) return
   
   const padding = 40
   const chartWidth = width - 2 * padding
@@ -1336,6 +1442,73 @@ onMounted(() => {
 
 .upload-group:last-child {
   margin-bottom: 0;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(103, 194, 58, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid #67c23a;
+}
+
+.success-icon {
+  color: #67c23a;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #303133;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.upload-actions {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.upload-dataset-btn {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #67c23a, #85ce61);
+  border: none;
+  color: white;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.upload-dataset-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(103, 194, 58, 0.3);
+}
+
+.upload-hint-text {
+  font-size: 14px;
+  color: #909399;
+  text-align: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  border: 1px dashed #d9d9d9;
 }
 
 .upload-area {
