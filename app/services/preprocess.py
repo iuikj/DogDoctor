@@ -1,9 +1,11 @@
+import io
+
+import albumentations as A
 import cv2
 import numpy as np
 from PIL import Image
-import albumentations as A
 from rembg import remove
-import io
+
 
 class ImagePreprocessor:
     def __init__(self):

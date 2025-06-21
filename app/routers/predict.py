@@ -1,21 +1,17 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
-from fastapi.responses import JSONResponse
-import torch
-from torchvision import transforms
-from PIL import Image
 import io
 import os
-import json
-import base64
-from io import BytesIO
-import pandas as pd
-from sqlalchemy.orm import Session
 
-from app.services.model import DogBreedModel
-from app.services.dataset import DogBreedDataset
-from app.services.predict_utils import predict_and_visualize
-from app.services.breed_service import breed_service
+import pandas as pd
+import torch
+from PIL import Image
+from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
+from torchvision import transforms
+
 from app.database import get_db
+from app.services.breed_service import breed_service
+from app.services.model import DogBreedModel
 
 router = APIRouter()
 
@@ -27,7 +23,7 @@ def load_model(dataset_name: str):
     """加载模型"""
     try:
         # 获取类别数量
-        labels_file = os.path.join("app/static/uploads", "labels.csv")
+        labels_file = os.path.join("app/static/uploads",dataset_name, "labels.csv")
         if not os.path.exists(labels_file):
             raise FileNotFoundError("找不到标签文件")
         
@@ -80,7 +76,7 @@ async def predict_image(
         model = load_model(dataset_name)
         
         # 获取类别名称
-        labels_file = os.path.join("app/static/uploads", "labels.csv")
+        labels_file = os.path.join("app/static/uploads",dataset_name, "labels.csv")
         if not os.path.exists(labels_file):
             labels_file = "datas/kaggle_dog_tiny/kaggle_dog_tiny/labels.csv"
         

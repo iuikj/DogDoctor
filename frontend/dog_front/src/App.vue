@@ -565,41 +565,35 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
-import { ElMessage, ElNotification } from 'element-plus'
+import {onMounted, reactive, ref, watch} from 'vue'
+import {ElMessage, ElNotification} from 'element-plus'
 import {
-  // 基础图标
-  Picture as IconPicture,
+  Aim as IconBullseye,
+  Avatar as IconRobot,
   Collection as IconCollection,
-  Files as IconFiles,
-  Grid as IconGrid,
-  Select as IconSelect,
-  RefreshRight as IconRefresh,
-  // 导航和界面图标
-  UserFilled as IconDog,
-  Setting as IconCogs,
-  Search as IconSearch,
-  // 上传图标
-  Upload as IconUpload,
+  Cpu as IconBrain,
   Document as IconDocument,
+  Files as IconFiles,
   Folder as IconFolder,
   FolderOpened as IconFolderOpen,
-  // 训练相关图标
-  Cpu as IconBrain,
-  VideoPlay as IconPlay,
-  Loading as IconSpinner,
-  VideoPause as IconStop,
-  // 图表和统计图标
-  TrendCharts as IconChartArea,
-  Aim as IconBullseye,
-  TrendCharts as IconChartLine,
-  SuccessFilled as IconCheckCircle,
-  Odometer as IconTachometer,
+  Grid as IconGrid,
   Histogram as IconChartBar,
-  // 其他图标
-  PictureRounded as IconImage,
+  Loading as IconSpinner,
   MagicStick as IconMagic,
-  Avatar as IconRobot,
+  Odometer as IconTachometer,
+  Picture as IconPicture,
+  PictureRounded as IconImage,
+  RefreshRight as IconRefresh,
+  Search as IconSearch,
+  Select as IconSelect,
+  Setting as IconCogs,
+  SuccessFilled as IconCheckCircle,
+  TrendCharts as IconChartArea,
+  TrendCharts as IconChartLine,
+  Upload as IconUpload,
+  UserFilled as IconDog,
+  VideoPause as IconStop,
+  VideoPlay as IconPlay,
   Warning as IconWarning
 } from '@element-plus/icons-vue'
 

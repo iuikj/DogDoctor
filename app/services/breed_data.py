@@ -1,8 +1,8 @@
-from sqlalchemy.orm import Session
+import logging
+from typing import Dict, Optional
+
 from app.database import SessionLocal
 from app.models import DogBreed
-from typing import Dict, Optional
-import logging
 
 logger = logging.getLogger(__name__)
 

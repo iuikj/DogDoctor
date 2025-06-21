@@ -1,10 +1,12 @@
-from sqlalchemy.orm import Session
-from app.models import DogBreed
-from app.database import get_db, create_tables, engine, SessionLocal
-from app.services.model import DogBreedModel
-from app.services.breed_data import get_breed_info
-import pandas as pd
 import os
+
+import pandas as pd
+from sqlalchemy.orm import Session
+
+from app.database import SessionLocal
+from app.models import DogBreed
+from app.services.breed_data import get_breed_info
+
 
 class BreedService:
     """品种信息服务类"""

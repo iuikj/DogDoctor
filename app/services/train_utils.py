@@ -1,7 +1,7 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
 import pickle
+
+import torch
+
 
 def train_epoch(model, dataloader, criterion, optimizer, device):
     model.train()

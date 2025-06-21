@@ -1,20 +1,18 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse, StreamingResponse
+import asyncio
+import json
+import os
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import transforms
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse, StreamingResponse
 from torch.utils.data import DataLoader
-import os
-import json
-from datetime import datetime
-import time
-import asyncio
-from typing import AsyncGenerator
+from torchvision import transforms
 
-from app.services.model import DogBreedModel
 from app.services.dataset import DogBreedDataset
-from app.services.train_utils import train_epoch, validate, save_training_history
+from app.services.model import DogBreedModel
+from app.services.train_utils import train_epoch, validate
 
 router = APIRouter()
 
@@ -119,7 +117,7 @@ async def train_model(dataset_name: str):
         # 构建数据路径
         base_dir = os.path.join("app/static/uploads", dataset_name)
         print("数据集路径:", base_dir)
-        labels_file = os.path.join("app/static/uploads", "labels.csv")
+        labels_file = os.path.join("app/static/uploads",dataset_name, "labels.csv")
         print("标签文件存在:", os.path.exists(labels_file))
         train_dir = os.path.join(base_dir, "train")
         print("训练目录存在:", os.path.exists(train_dir))

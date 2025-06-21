@@ -1,8 +1,9 @@
+import base64
+import io
+from typing import List, Dict
+
 import matplotlib.pyplot as plt
 import numpy as np
-import io
-import base64
-from typing import List, Dict, Any
 
 
 class TrainingVisualizer:

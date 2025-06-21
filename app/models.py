@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.sql import func
+
 from app.database import Base
+
 
 class DogBreed(Base):
     """狗品种信息表"""

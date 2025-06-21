@@ -1,10 +1,9 @@
-import torch
-import pandas as pd
-from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
-import io
+import pandas as pd
+import torch
+from torch.utils.data import DataLoader
+
 from .preprocess import ImagePreprocessor
 
 

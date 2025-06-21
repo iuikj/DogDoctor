@@ -1,11 +1,11 @@
+from pathlib import Path
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
 
 from app.database import create_tables
-from routers import preprocess
 
 BASE_DIR = Path(__file__).resolve().parent  # 指向 app/
 STATIC_DIR = BASE_DIR / "static"            # 指向 app/static
