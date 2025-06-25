@@ -27,8 +27,6 @@ app.add_middleware(
 )
 
 # 挂载静态文件目录
-
-
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # 导入路由
